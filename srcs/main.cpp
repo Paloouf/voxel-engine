@@ -101,7 +101,7 @@ void mouseButton(int button, int state, int x, int y) {
         //means im dezooming
         renderer->zoomFactor -= renderer->zoomSpeed;
     }
-    std::cout << button << " " << state << " " << x << " " << y << std::endl;
+    //std::cout << button << " " << state << " " << x << " " << y << std::endl;
 }
 
 void mouseMotion(int x, int y) {
@@ -159,10 +159,8 @@ int main(int argc, char** argv){
 
     glEnable(GL_DEPTH_TEST);
 
-    World world(5);
+    World world(7);
     renderer = new Renderer(world);
-    // GLuint programID = LoadShaders( "./srcs/shaders/vertexShader.glsl", "./srcs/shaders/fragShader.glsl" );
-    // glUseProgram(programID);
     glutMouseFunc(mouseButton);
     glutMotionFunc(mouseMotion);
     glutDisplayFunc(displayWrapper);

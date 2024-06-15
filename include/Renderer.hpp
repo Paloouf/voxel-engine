@@ -32,6 +32,8 @@ class Renderer {
 		void setCameraPosition(float x, float y, float z);
 		void setRotationAngle(float angleX, float angleY);
 		void setZoomFactor(float zoom);
+
+		int programID;
 		
 		float rotationAngleX;
 		float rotationAngleY;
