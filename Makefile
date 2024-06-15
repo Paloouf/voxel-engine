@@ -4,7 +4,7 @@ SRC = ${wildcard srcs/*.cpp}
 OBJ = $(SRC:.cpp=.o)
 CC = c++
 
-LFLAGS = -lGL -lGLU -lglut
+LFLAGS = -lGL -lGLU -lglut -lSOIL
 FLAGS = -Wall -Werror -Wextra -std=c++17
 
 # ------------------------------ Colors ------------------------------

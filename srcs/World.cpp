@@ -65,6 +65,7 @@ void World::generate(int numVoxels) {
         unsigned int baseIndex = vertices.size() / 3;
         vertices.insert(vertices.end(), voxel.vertices.begin(), voxel.vertices.end());
 		colors.insert(colors.end(), voxel.colors.begin(), voxel.colors.end());
+        texCoords.insert(texCoords.end(), voxel.texCoords.begin(), voxel.texCoords.end());
         for (unsigned int index : voxel.indices) {
             indices.push_back(baseIndex + index);
         }

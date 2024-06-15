@@ -13,8 +13,27 @@ Voxel::Voxel(float x, float y, float z) : x(x), y(y), z(z) {
         x + 1.0f, y - 1.0f, z - 1.0f,
         x + 1.0f, y + 1.0f, z - 1.0f,
         x - 1.0f, y + 1.0f, z - 1.0f,
+        // Left face
+        x - 1.0f, y - 1.0f, z - 1.0f,
+        x - 1.0f, y - 1.0f, z + 1.0f,
+        x - 1.0f, y + 1.0f, z + 1.0f,
+        x - 1.0f, y + 1.0f, z - 1.0f,
+        // Right face
+        x + 1.0f, y - 1.0f, z - 1.0f,
+        x + 1.0f, y - 1.0f, z + 1.0f,
+        x + 1.0f, y + 1.0f, z + 1.0f,
+        x + 1.0f, y + 1.0f, z - 1.0f,
+        // Top face
+        x - 1.0f, y + 1.0f, z + 1.0f,
+        x + 1.0f, y + 1.0f, z + 1.0f,
+        x + 1.0f, y + 1.0f, z - 1.0f,
+        x - 1.0f, y + 1.0f, z - 1.0f,
+        // Bottom face
+        x - 1.0f, y - 1.0f, z + 1.0f,
+        x + 1.0f, y - 1.0f, z + 1.0f,
+        x + 1.0f, y - 1.0f, z - 1.0f,
+        x - 1.0f, y - 1.0f, z - 1.0f,
     };
-
     // Define indices
     indices = {
         // Front face
@@ -22,13 +41,13 @@ Voxel::Voxel(float x, float y, float z) : x(x), y(y), z(z) {
         // Back face
         4, 5, 6, 6, 7, 4,
         // Left face
-        0, 4, 7, 7, 3, 0,
+        8, 9, 10, 10, 11, 8,
         // Right face
-        1, 5, 6, 6, 2, 1,
+        12, 13, 14, 14, 15, 12,
         // Top face
-        3, 2, 6, 6, 7, 3,
+        16, 17, 18, 18, 19, 16,
         // Bottom face
-        0, 1, 5, 5, 4, 0
+        20, 21, 22, 22, 23, 20,
     };
 
 	colors = {
@@ -40,6 +59,44 @@ Voxel::Voxel(float x, float y, float z) : x(x), y(y), z(z) {
          0.0f, 1.0f, 1.0f, 1.0f, // Cyan
          1.0f, 0.5f, 0.0f, 1.0f, // Orange
          0.5f, 0.0f, 0.5f, 1.0f, // Purple
+    };
+
+    texCoords = {
+        // Front face
+        0.0f, 0.0f,
+        1.0f, 0.0f,
+        1.0f, 1.0f,
+        0.0f, 1.0f,
+
+        // Back face
+        0.0f, 0.0f,
+        1.0f, 0.0f,
+        1.0f, 1.0f,
+        0.0f, 1.0f,
+
+        // Left face
+        0.0f, 0.0f,
+        1.0f, 0.0f,
+        1.0f, 1.0f,
+        0.0f, 1.0f,
+
+        // Right face
+        0.0f, 0.0f,
+        1.0f, 0.0f,
+        1.0f, 1.0f,
+        0.0f, 1.0f,
+
+        // Top face
+        0.0f, 0.0f,
+        1.0f, 0.0f,
+        1.0f, 1.0f,
+        0.0f, 1.0f,
+
+        // Bottom face
+        0.0f, 0.0f,
+        1.0f, 0.0f,
+        1.0f, 1.0f,
+        0.0f, 1.0f,
     };
 }
 

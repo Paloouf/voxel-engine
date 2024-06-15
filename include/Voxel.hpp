@@ -18,6 +18,7 @@ class Voxel{
 		std::vector<float> vertices;
 		std::vector<unsigned int> indices;
 		std::vector<float> colors;
+		std::vector<float> texCoords;
 		float x, y, z;
 
 		Voxel(float x, float y, float z);

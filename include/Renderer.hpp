@@ -23,17 +23,19 @@ class Renderer {
 		VertexBuffer* vbo;
 		IndexBuffer* ibo;
 		VertexBuffer* cbo;
+		VertexBuffer* tbo;
 		float angle;
 
 	public:
 		Renderer(const World& world);
 		~Renderer();
 		void draw();
-		void setCameraPosition(float x, float y, float z);
-		void setRotationAngle(float angleX, float angleY);
-		void setZoomFactor(float zoom);
+		// void setCameraPosition(float x, float y, float z);
+		// void setRotationAngle(float angleX, float angleY);
+		// void setZoomFactor(float zoom);
 
-		int programID;
+		GLuint programID;
+		GLuint textureID;
 		
 		float rotationAngleX;
 		float rotationAngleY;

@@ -14,11 +14,34 @@ bool GLLogCall(const char* function, const char* file, int line){
 	return true;
 }
 
+GLuint loadTexture(const char* path) {
+    GLuint textureID = SOIL_load_OGL_texture(
+        path,
+        SOIL_LOAD_AUTO,
+        SOIL_CREATE_NEW_ID,
+        SOIL_FLAG_INVERT_Y
+    );
+
+    if (textureID == 0) {
+        std::cerr << "Failed to load texture: " << SOIL_last_result() << std::endl;
+    }
+
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    return textureID;
+}
+
 Renderer::Renderer(const World& world) : angle(0.0f) {
     vbo = new VertexBuffer(world.vertices.data(), world.vertices.size() * sizeof(float));
     ibo = new IndexBuffer(world.indices.data(), world.indices.size());
 	cbo = new VertexBuffer(world.colors.data(), world.colors.size() * sizeof(float));
+    tbo = new VertexBuffer(world.texCoords.data(), world.texCoords.size() * sizeof(float));
     programID = LoadShaders( "./srcs/shaders/vertexShader.glsl", "./srcs/shaders/fragShader.glsl" );
+    textureID = loadTexture("./srcs/textures/image.png");
 }
 
 Renderer::~Renderer() {
@@ -60,6 +83,8 @@ void Renderer::draw() {
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
     ibo->Bind();
     vbo->Bind();
     glEnableVertexAttribArray(0); // Vertex positions
@@ -67,8 +92,8 @@ void Renderer::draw() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);
 
     glEnableVertexAttribArray(1); // Vertex colors
-     cbo->Bind();
-     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)0);
+     tbo->Bind();
+     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, (void*)0);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -78,7 +103,7 @@ void Renderer::draw() {
     glDisableVertexAttribArray(1);
 
     vbo->Unbind();
-    cbo->Unbind();
+    tbo->Unbind();
     ibo->Unbind();
 
     //angle += 0.5f;

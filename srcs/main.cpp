@@ -159,7 +159,7 @@ int main(int argc, char** argv){
 
     glEnable(GL_DEPTH_TEST);
 
-    World world(7);
+    World world(16);
     renderer = new Renderer(world);
     glutMouseFunc(mouseButton);
     glutMotionFunc(mouseMotion);
