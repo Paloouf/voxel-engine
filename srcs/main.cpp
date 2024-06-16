@@ -151,6 +151,12 @@ void mouseWheel(int wheel, int direction, int x, int y) {
     glutPostRedisplay(); // Request a redraw
 }
 
+double GetTimeAsDouble() {
+    using namespace std::chrono;
+    using SecondsFP = std::chrono::duration<double>;
+    return duration_cast<SecondsFP>(high_resolution_clock::now().time_since_epoch()).count();
+}
+
 int main(int argc, char** argv){
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -161,6 +167,7 @@ int main(int argc, char** argv){
 
     World world(16);
     renderer = new Renderer(world);
+    renderer->lastTime = GetTimeAsDouble();
     glutMouseFunc(mouseButton);
     glutMotionFunc(mouseMotion);
     glutDisplayFunc(displayWrapper);

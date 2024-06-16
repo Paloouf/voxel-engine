@@ -15,8 +15,6 @@
 #include <map>
 #include <sstream>
 #include <cmath>
-// #include <GL/glew.h>
-// #include <GL/freeglut.h>
 #include <chrono>
 #include <thread>
 #include "Voxel.hpp"
@@ -30,3 +28,4 @@
 
 
 GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path);
+double GetTimeAsDouble();

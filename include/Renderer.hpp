@@ -37,6 +37,8 @@ class Renderer {
 		GLuint programID;
 		GLuint textureID;
 		
+		double lastTime;
+ 		int nbFrames = 0;
 		float rotationAngleX;
 		float rotationAngleY;
 		float sensitivity = 1.0f;

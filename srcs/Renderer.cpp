@@ -55,15 +55,17 @@ void Renderer::draw() {
     glUseProgram(programID);
     glLoadIdentity();
 
-//    gluLookAt(cameraPositionX, cameraPositionY, cameraPositionZ,
-//               0.0f, 0.0f, 0.0f,
-//               0.0f, 1.0f, 0.0f);
+    //fps count
+    double currentTime = GetTimeAsDouble();
+    nbFrames++;
+    if ( currentTime - lastTime >= 1.0 ){ // If last prinf() was more than 1 sec ago
+        // printf and reset timer
+        printf("%f ms/frame or %d\n", 1000.0/double(nbFrames), nbFrames);
+        nbFrames = 0;
+        lastTime += 1.0;
+    }
 
-// 	glRotatef(rotationAngleX, 1.0f, 0.0f, 0.0f);
-//     glRotatef(rotationAngleY, 0.0f, 1.0f, 0.0f);
 
-// 	glTranslatef(cameraPositionX, cameraPositionY, 0.0f);
-//     glScalef(zoomFactor, zoomFactor, zoomFactor);
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::rotate(model, glm::radians(rotationAngleX), glm::vec3(1.0f, 0.0f, 0.0f));
     model = glm::rotate(model, glm::radians(rotationAngleY), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -91,11 +93,11 @@ void Renderer::draw() {
     
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);
 
-    glEnableVertexAttribArray(1); // Vertex colors
-     tbo->Bind();
-     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, (void*)0);
+    glEnableVertexAttribArray(1); // Vertex textures
+    tbo->Bind();
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, (void*)0);
 
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //To show with lines only
 
     glDrawElements(GL_TRIANGLES, ibo->GetCount(), GL_UNSIGNED_INT, nullptr);
 
@@ -105,8 +107,6 @@ void Renderer::draw() {
     vbo->Unbind();
     tbo->Unbind();
     ibo->Unbind();
-
-    //angle += 0.5f;
 
     glutSwapBuffers();
 }
