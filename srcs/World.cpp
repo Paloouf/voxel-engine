@@ -1,56 +1,9 @@
-#include "../include/World.hpp"
+#include "../include/main.hpp"
 
-World::World(int numVoxels) {
+World::World(int numVoxels) :numVoxels(numVoxels) {
     generate(numVoxels);
 }
 
-// World::World(int sizeX, int sizeY, int sizeZ) : _sizeX(sizeX), _sizeY(sizeY), _sizeZ(sizeZ) {
-// 	_voxels.resize(sizeX);
-// 	for(int x = 0; x < sizeX; x++)
-// 	{
-// 		_voxels[x].resize(sizeY);
-// 		for(int y = 0; y < sizeY; y++)
-// 		{
-// 			_voxels[x][y].resize(sizeZ);
-// 			for (int z = 0; z < sizeZ; z++)
-// 			{
-// 				std::cout << x << y <<z << std::endl;
-// 				_voxels[x][y][z] = new Voxel(x * 2.0f,y * 2.0f,z * 2.0f);
-// 			}
-// 		}
-// 	}
-// 	generate();
-// }
-
-// void World::generate() {
-// 	for(int x = 0; x < _sizeX; x++)
-// 	{
-// 		for(int y = 0; y < _sizeY; y++)
-// 		{
-// 			for (int z = 0; z < _sizeZ; z++)
-// 			{
-// 				unsigned int baseIndex = vertices.size() / 3;
-// 				vertices.insert(vertices.end(), _voxels[x][y][z]->vertices.begin(), _voxels[x][y][z]->vertices.end());
-// 				colors.insert(colors.end(), _voxels[x][y][z]->colors.begin(), _voxels[x][y][z]->colors.end());
-// 				for (unsigned int index : _voxels[x][y][z]->indices) {
-// 					indices.push_back(baseIndex + index);
-// 				}
-// 			}
-// 		}
-// 	}
-// 	for (std::vector<float>::iterator i = vertices.begin(); i != vertices.end(); i++)
-// 		std::cout << *i << std::endl;
-// }
-
-// World::~World(){
-// 	for (int x = 0; x < _sizeX; x++){
-// 		for (int y = 0; y < _sizeY; y++){
-// 			for (int z = 0; z < _sizeZ; z++){
-// 				delete _voxels[x][y][z];
-// 			}
-// 		}
-// 	}
-// }
 void World::generate(int numVoxels) {
     int numVoxelsPerDimension = numVoxels;
 
@@ -62,14 +15,23 @@ void World::generate(int numVoxels) {
         }
     }
     for (const Voxel& voxel : voxels) {
-        unsigned int baseIndex = vertices.size() / 3;
-        vertices.insert(vertices.end(), voxel.vertices.begin(), voxel.vertices.end());
-		colors.insert(colors.end(), voxel.colors.begin(), voxel.colors.end());
-        texCoords.insert(texCoords.end(), voxel.texCoords.begin(), voxel.texCoords.end());
-        for (unsigned int index : voxel.indices) {
-            indices.push_back(baseIndex + index);
+        if (voxel.isActive()){
+            unsigned int baseIndex = vertices.size() / 3;
+            vertices.insert(vertices.end(), voxel.vertices.begin(), voxel.vertices.end());
+            colors.insert(colors.end(), voxel.colors.begin(), voxel.colors.end());
+            texCoords.insert(texCoords.end(), voxel.texCoords.begin(), voxel.texCoords.end());
+            for (unsigned int index : voxel.indices) {
+                indices.push_back(baseIndex + index);
+            }
         }
     }
 	// for (std::vector<float>::iterator i = vertices.begin(); i != vertices.end(); i++)
  	// 	std::cout << *i << std::endl;
+}
+
+void World::updateVisibility(const glm::mat4& viewProjMatrix) {
+    Frustum frustum = extractFrustum(viewProjMatrix);
+    for (std::vector<Voxel>::iterator it = voxels.begin(); it != voxels.end(); it++){
+        (*it).setActive(isVoxelInFrustum((*it), frustum));
+    }
 }

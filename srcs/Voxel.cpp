@@ -102,7 +102,7 @@ Voxel::Voxel(float x, float y, float z) : x(x), y(y), z(z) {
 
 Voxel::~Voxel() {}
 
-bool Voxel::isActive() { return m_active; }
+bool Voxel::isActive() const { return m_active; }
 
 void Voxel::setActive(bool active) {
 	m_active = active;

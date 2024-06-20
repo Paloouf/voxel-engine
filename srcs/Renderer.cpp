@@ -35,11 +35,12 @@ GLuint loadTexture(const char* path) {
     return textureID;
 }
 
-Renderer::Renderer(const World& world) : angle(0.0f) {
-    vbo = new VertexBuffer(world.vertices.data(), world.vertices.size() * sizeof(float));
-    ibo = new IndexBuffer(world.indices.data(), world.indices.size());
-	cbo = new VertexBuffer(world.colors.data(), world.colors.size() * sizeof(float));
-    tbo = new VertexBuffer(world.texCoords.data(), world.texCoords.size() * sizeof(float));
+Renderer::Renderer(World* world) : world(world) 
+{
+    vbo = new VertexBuffer(world->vertices.data(), world->vertices.size() * sizeof(float));
+    ibo = new IndexBuffer(world->indices.data(), world->indices.size());
+	cbo = new VertexBuffer(world->colors.data(), world->colors.size() * sizeof(float));
+    tbo = new VertexBuffer(world->texCoords.data(), world->texCoords.size() * sizeof(float));
     programID = LoadShaders( "./srcs/shaders/vertexShader.glsl", "./srcs/shaders/fragShader.glsl" );
     textureID = loadTexture("./srcs/textures/image.png");
 }
@@ -75,7 +76,10 @@ void Renderer::draw() {
                                  glm::vec3(0.0f, 0.0f, 0.0f),
                                  glm::vec3(0.0f, 1.0f, 0.0f));
 
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 1000.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), WIDTH / HEIGHT, 0.1f, 1000.0f);
+    glm::mat4 viewProjMatrix = projection * view;
+    world->updateVisibility(viewProjMatrix);
+    updateVBO();
 
     GLint modelLoc = glGetUniformLocation(programID, "model");
     GLint viewLoc = glGetUniformLocation(programID, "view");
@@ -109,4 +113,36 @@ void Renderer::draw() {
     ibo->Unbind();
 
     glutSwapBuffers();
+}
+
+void Renderer::updateVBO() {
+    std::vector<float> newVertices;
+    std::vector<float> newTexCoords;
+    std::vector<unsigned int> newIndices;
+
+    unsigned int baseIndex = 0;
+
+    for (Voxel voxel : world->voxels) {
+        if (voxel.isActive()) {
+            newVertices.insert(newVertices.end(), voxel.vertices.begin(), voxel.vertices.end());
+            newTexCoords.insert(newTexCoords.end(), voxel.texCoords.begin(), voxel.texCoords.end());
+            for (unsigned int index : voxel.indices) {
+                newIndices.push_back(baseIndex + index);
+            }
+            baseIndex += voxel.vertices.size() / 3;
+        }
+    }
+
+    // Update VBO and IBO with new data
+    vbo->Bind();
+    vbo->Update(newVertices.data(), newVertices.size() * sizeof(float));
+    vbo->Unbind();
+
+    cbo->Bind();
+    cbo->Update(newTexCoords.data(), newTexCoords.size() * sizeof(float));
+    cbo->Unbind();
+
+    ibo->Bind();
+    ibo->Update(newIndices.data(), newIndices.size());
+    ibo->Unbind();
 }

@@ -1,8 +1,5 @@
 #pragma once
 #include "main.hpp"
-#include "VertexBuffer.hpp"
-#include "IndexBuffer.hpp"
-#include "Voxel.hpp"
 #include "World.hpp"
 
 #define ASSERT(x) if (!(x)) raise(SIGTRAP);
@@ -16,7 +13,7 @@ bool GLLogCall(const char* function, const char* file, int line);
 class IndexBuffer;
 class VertexBuffer;
 class Voxel;
-class World;
+
 
 class Renderer {
 	private:
@@ -25,17 +22,20 @@ class Renderer {
 		VertexBuffer* cbo;
 		VertexBuffer* tbo;
 		float angle;
+		World* world;
 
 	public:
-		Renderer(const World& world);
+		Renderer(World* world);
 		~Renderer();
 		void draw();
+		void	updateVBO();
 		// void setCameraPosition(float x, float y, float z);
 		// void setRotationAngle(float angleX, float angleY);
 		// void setZoomFactor(float zoom);
 
 		GLuint programID;
 		GLuint textureID;
+		
 		
 		double lastTime;
  		int nbFrames = 0;

@@ -23,7 +23,7 @@ class Voxel{
 
 		Voxel(float x, float y, float z);
 		~Voxel();
-		bool isActive();
+		bool isActive() const;
 		void setActive(bool active);
 	private:
 		bool m_active;

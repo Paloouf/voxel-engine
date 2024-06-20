@@ -10,5 +10,6 @@ class IndexBuffer {
 		~IndexBuffer();
 		void Bind() const;
 		void Unbind() const;
+		void Update(const void* data, unsigned int count);
 		unsigned int GetCount() const;
 };

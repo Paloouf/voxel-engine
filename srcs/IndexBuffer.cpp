@@ -18,6 +18,11 @@ void IndexBuffer::Unbind() const {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
+void IndexBuffer::Update(const void* data, unsigned int count){
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), data, GL_STATIC_DRAW);
+}
+
 unsigned int IndexBuffer::GetCount() const {
 	return m_count;
 }
