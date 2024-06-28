@@ -18,7 +18,7 @@ class World {
 
 		World(int numVoxels);
 		void generate(int numVoxels);
-		void updateVisibility(const glm::mat4& viewProjMatrix);
+		void updateVisibility(const glm::mat4& viewProjMatrix, GLuint depthFBO);
 	private:
 		int _sizeX;
 		int _sizeY;

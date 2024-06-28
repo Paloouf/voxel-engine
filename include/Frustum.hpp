@@ -7,3 +7,4 @@ struct Frustum {
 
 Frustum extractFrustum(const glm::mat4& viewProjMatrix);
 bool isVoxelInFrustum(const Voxel& voxel, const Frustum& frustum);
+bool isVoxelOccluded(const Voxel& voxel, const glm::mat4& viewProjMatrix, GLuint depthFBO);

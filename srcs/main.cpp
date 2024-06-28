@@ -31,15 +31,26 @@ void    processNormalKeys(unsigned char key, int x, int y){
 		else
 			red = 1.0;
 	}
-    switch(key){
+    const float moveSpeed = 5.1f;
+    switch (key) {
         case 'w':
-            renderer->cameraPositionZ += renderer->moveSpeed; break;
+            renderer->moveCamera(0.0f, 0.0f, -moveSpeed); // Move forward
+            break;
         case 's':
-            renderer->cameraPositionZ -= renderer->moveSpeed; break;
-        case 'd':
-            renderer->cameraPositionX += renderer->moveSpeed; break;
+            renderer->moveCamera(0.0f, 0.0f, moveSpeed); // Move backward
+            break;
         case 'a':
-            renderer->cameraPositionX -= renderer->moveSpeed; break;
+            renderer->moveCamera(-moveSpeed, 0.0f, 0.0f); // Move left
+            break;
+        case 'd':
+            renderer->moveCamera(moveSpeed, 0.0f, 0.0f); // Move right
+            break;
+        case 'q':
+            renderer->moveCamera(0.0f, moveSpeed, 0.0f); // Move up
+            break;
+        case 'e':
+            renderer->moveCamera(0.0f, -moveSpeed, 0.0f); // Move down
+            break;
     }
 }
 
@@ -165,7 +176,7 @@ int main(int argc, char** argv){
 
     glEnable(GL_DEPTH_TEST);
 
-    World world(16);
+    World world(15);
     renderer = new Renderer(&world);
     renderer->lastTime = GetTimeAsDouble();
     glutMouseFunc(mouseButton);

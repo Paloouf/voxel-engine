@@ -21,6 +21,7 @@ class Renderer {
 		IndexBuffer* ibo;
 		VertexBuffer* cbo;
 		VertexBuffer* tbo;
+		//FrameBuffer* fbo;
 		float angle;
 		World* world;
 
@@ -28,15 +29,27 @@ class Renderer {
 		Renderer(World* world);
 		~Renderer();
 		void draw();
-		void	updateVBO();
+		void updateVBO();
+		void drawFrustum(const glm::mat4& invViewProj);
+		void moveCamera(float deltaX, float deltaY, float deltaZ);
+		void updateViewMatrix();
+		void initializeDepthResources();
+		void renderSceneToDepthBuffer();
+		void renderDepthBuffer();
 		// void setCameraPosition(float x, float y, float z);
 		// void setRotationAngle(float angleX, float angleY);
 		// void setZoomFactor(float zoom);
 
 		GLuint programID;
+		GLuint depthProgramID;
 		GLuint textureID;
+		GLuint depthFBO;
+		GLuint depthTexture;
 		
-		
+		glm::vec3 cameraPosition;
+		glm::mat4 viewMatrix;
+		glm::mat4 view;
+		glm::mat4 projection;
 		double lastTime;
  		int nbFrames = 0;
 		float rotationAngleX;

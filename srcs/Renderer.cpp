@@ -35,6 +35,24 @@ GLuint loadTexture(const char* path) {
     return textureID;
 }
 
+std::array<glm::vec3, 8> calculateFrustumCorners(const glm::mat4& invViewProj) {
+    std::array<glm::vec3, 8> corners;
+    std::array<glm::vec4, 8> ndcCorners = {
+        glm::vec4(-1, -1, -1, 1), glm::vec4(1, -1, -1, 1),
+        glm::vec4(1, 1, -1, 1), glm::vec4(-1, 1, -1, 1),
+        glm::vec4(-1, -1, 1, 1), glm::vec4(1, -1, 1, 1),
+        glm::vec4(1, 1, 1, 1), glm::vec4(-1, 1, 1, 1)
+    };
+    
+    for (int i = 0; i < 8; ++i) {
+        glm::vec4 worldPos = invViewProj * ndcCorners[i];
+        worldPos /= worldPos.w;
+        corners[i] = glm::vec3(worldPos);
+    }
+    
+    return corners;
+}
+
 Renderer::Renderer(World* world) : world(world) 
 {
     vbo = new VertexBuffer(world->vertices.data(), world->vertices.size() * sizeof(float));
@@ -42,7 +60,16 @@ Renderer::Renderer(World* world) : world(world)
 	cbo = new VertexBuffer(world->colors.data(), world->colors.size() * sizeof(float));
     tbo = new VertexBuffer(world->texCoords.data(), world->texCoords.size() * sizeof(float));
     programID = LoadShaders( "./srcs/shaders/vertexShader.glsl", "./srcs/shaders/fragShader.glsl" );
+    depthProgramID = LoadShaders("./srcs/shaders/depthVertex.glsl", "./srcs/shaders/depthFragment.glsl");
     textureID = loadTexture("./srcs/textures/image.png");
+    cameraPosition = glm::vec3(cameraPositionX, cameraPositionY, cameraPositionZ);
+    projection = glm::perspective(glm::radians(45.0f), WIDTH / HEIGHT, 0.1f, 1000.0f);
+    view = glm::lookAt(
+        glm::vec3(cameraPositionX, cameraPositionY, cameraPositionZ),
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(0.0f, 1.0f, 0.0f)
+    );
+    viewMatrix = projection * view;
 }
 
 Renderer::~Renderer() {
@@ -51,7 +78,64 @@ Renderer::~Renderer() {
 	delete cbo;
 }
 
+void Renderer::drawFrustum(const glm::mat4& invViewProj) {
+    std::array<glm::vec3, 8> corners = calculateFrustumCorners(invViewProj);
+    
+    glBegin(GL_LINES);
+    // Near plane
+    glVertex3fv(glm::value_ptr(corners[0]));
+    glVertex3fv(glm::value_ptr(corners[1]));
+
+    glVertex3fv(glm::value_ptr(corners[1]));
+    glVertex3fv(glm::value_ptr(corners[2]));
+
+    glVertex3fv(glm::value_ptr(corners[2]));
+    glVertex3fv(glm::value_ptr(corners[3]));
+
+    glVertex3fv(glm::value_ptr(corners[3]));
+    glVertex3fv(glm::value_ptr(corners[0]));
+
+    // Far plane
+    glVertex3fv(glm::value_ptr(corners[4]));
+    glVertex3fv(glm::value_ptr(corners[5]));
+
+    glVertex3fv(glm::value_ptr(corners[5]));
+    glVertex3fv(glm::value_ptr(corners[6]));
+
+    glVertex3fv(glm::value_ptr(corners[6]));
+    glVertex3fv(glm::value_ptr(corners[7]));
+
+    glVertex3fv(glm::value_ptr(corners[7]));
+    glVertex3fv(glm::value_ptr(corners[4]));
+
+    // Connecting lines
+    glVertex3fv(glm::value_ptr(corners[0]));
+    glVertex3fv(glm::value_ptr(corners[4]));
+
+    glVertex3fv(glm::value_ptr(corners[1]));
+    glVertex3fv(glm::value_ptr(corners[5]));
+
+    glVertex3fv(glm::value_ptr(corners[2]));
+    glVertex3fv(glm::value_ptr(corners[6]));
+
+    glVertex3fv(glm::value_ptr(corners[3]));
+    glVertex3fv(glm::value_ptr(corners[7]));
+    glEnd();
+}
+
+void Renderer::moveCamera(float deltaX, float deltaY, float deltaZ) {
+    std::cout << "WOMP WOMP\n";
+    cameraPosition += glm::vec3(deltaX, deltaY, deltaZ);
+    updateViewMatrix();
+}
+
+void Renderer::updateViewMatrix() {
+    //glm::mat4 projection = glm::perspective(glm::radians(45.0f), WIDTH / HEIGHT, 0.1f, 1000.0f);
+    viewMatrix = glm::lookAt(cameraPosition, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)) * projection;
+}
+
 void Renderer::draw() {
+    renderDepthBuffer();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glUseProgram(programID);
     glLoadIdentity();
@@ -72,13 +156,17 @@ void Renderer::draw() {
     model = glm::rotate(model, glm::radians(rotationAngleY), glm::vec3(0.0f, 1.0f, 0.0f));
     model = glm::scale(model, glm::vec3(zoomFactor, zoomFactor, zoomFactor));
 
-    glm::mat4 view = glm::lookAt(glm::vec3(cameraPositionX, cameraPositionY, cameraPositionZ),
-                                 glm::vec3(0.0f, 0.0f, 0.0f),
-                                 glm::vec3(0.0f, 1.0f, 0.0f));
+    view = glm::lookAt(
+        glm::vec3(cameraPositionX, cameraPositionY, cameraPositionZ),
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(0.0f, 1.0f, 0.0f)
+    );
 
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), WIDTH / HEIGHT, 0.1f, 1000.0f);
-    glm::mat4 viewProjMatrix = projection * view;
-    world->updateVisibility(viewProjMatrix);
+    projection = glm::perspective(glm::radians(45.0f), WIDTH / HEIGHT, 0.1f, 1000.0f);
+    viewMatrix = projection * view;
+    //glm::mat4 viewProjMatrix = projection * view;
+    glm::mat4 invViewProj = glm::inverse(viewMatrix);
+    world->updateVisibility(viewMatrix, depthFBO);
     updateVBO();
 
     GLint modelLoc = glGetUniformLocation(programID, "model");
@@ -111,6 +199,7 @@ void Renderer::draw() {
     vbo->Unbind();
     tbo->Unbind();
     ibo->Unbind();
+    drawFrustum(invViewProj);
 
     glutSwapBuffers();
 }
@@ -138,11 +227,76 @@ void Renderer::updateVBO() {
     vbo->Update(newVertices.data(), newVertices.size() * sizeof(float));
     vbo->Unbind();
 
-    cbo->Bind();
-    cbo->Update(newTexCoords.data(), newTexCoords.size() * sizeof(float));
-    cbo->Unbind();
+    tbo->Bind();
+    tbo->Update(newTexCoords.data(), newTexCoords.size() * sizeof(float));
+    tbo->Unbind();
 
     ibo->Bind();
     ibo->Update(newIndices.data(), newIndices.size());
+    ibo->Unbind();
+}
+
+void Renderer::initializeDepthResources() {
+
+    glGenFramebuffers(1, &depthFBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, depthFBO);
+
+    glGenTextures(1, &depthTexture);
+    glBindTexture(GL_TEXTURE_2D, depthTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, WIDTH, HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture, 0);
+    glDrawBuffer(GL_NONE); // No color buffer is drawn to.
+    glReadBuffer(GL_NONE);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        std::cerr << "ERROR::FRAMEBUFFER:: Depth framebuffer is not complete!" << std::endl;
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Renderer::renderDepthBuffer() {
+    glBindFramebuffer(GL_FRAMEBUFFER, depthFBO);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+
+    // Render the scene to populate the depth buffer
+    renderSceneToDepthBuffer();
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Renderer::renderSceneToDepthBuffer() {
+    glUseProgram(depthProgramID);
+    glLoadIdentity();
+
+    glm::mat4 model = model;
+    glm::mat4 view = view;
+    glm::mat4 projection = projection;
+    //glm::mat4 viewMatrix = projection * view;
+
+    GLint modelLoc = glGetUniformLocation(depthProgramID, "model");
+    GLint viewLoc = glGetUniformLocation(depthProgramID, "view");
+    GLint projLoc = glGetUniformLocation(depthProgramID, "projection");
+
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+    ibo->Bind();
+    vbo->Bind();
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);
+
+    glDrawElements(GL_TRIANGLES, ibo->GetCount(), GL_UNSIGNED_INT, nullptr);
+
+    glDisableVertexAttribArray(0);
+    vbo->Unbind();
     ibo->Unbind();
 }

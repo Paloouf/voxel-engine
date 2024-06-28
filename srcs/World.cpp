@@ -29,9 +29,11 @@ void World::generate(int numVoxels) {
  	// 	std::cout << *i << std::endl;
 }
 
-void World::updateVisibility(const glm::mat4& viewProjMatrix) {
+void World::updateVisibility(const glm::mat4& viewProjMatrix, GLuint depthFBO) {
     Frustum frustum = extractFrustum(viewProjMatrix);
     for (std::vector<Voxel>::iterator it = voxels.begin(); it != voxels.end(); it++){
         (*it).setActive(isVoxelInFrustum((*it), frustum));
+        (*it).setActive(isVoxelOccluded((*it), viewProjMatrix, depthFBO));
+        //std::cout << (*it).isActive() << std::endl;
     }
 }

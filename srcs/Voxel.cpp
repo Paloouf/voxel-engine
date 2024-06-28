@@ -1,6 +1,6 @@
 #include "../include/Voxel.hpp"
 
-Voxel::Voxel(float x, float y, float z) : x(x), y(y), z(z) {
+Voxel::Voxel(float x, float y, float z) : x(x), y(y), z(z), m_active(true) {
     // Define vertices relative to the voxel position
     vertices = {
         // Front face

@@ -1,7 +1,7 @@
 #pragma once
 
-#define WIDTH 1920.0f
-#define HEIGHT 1080.0f
+#define WIDTH 800.0f
+#define HEIGHT 600.0f
 #define GL_GLEXT_PROTOTYPES
 #include <iostream>
 #include <iomanip>
