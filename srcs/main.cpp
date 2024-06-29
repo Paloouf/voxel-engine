@@ -51,6 +51,9 @@ void    processNormalKeys(unsigned char key, int x, int y){
         case 'e':
             renderer->moveCamera(0.0f, -moveSpeed, 0.0f); // Move down
             break;
+        case 'f':
+            renderer->drawFrustum(glm::inverse(renderer->viewMatrix));
+            break;
     }
 }
 
@@ -176,7 +179,7 @@ int main(int argc, char** argv){
 
     glEnable(GL_DEPTH_TEST);
 
-    World world(15);
+    World world(50);
     renderer = new Renderer(&world);
     renderer->lastTime = GetTimeAsDouble();
     glutMouseFunc(mouseButton);

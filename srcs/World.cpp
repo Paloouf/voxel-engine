@@ -15,7 +15,7 @@ void World::generate(int numVoxels) {
         }
     }
     for (const Voxel& voxel : voxels) {
-        if (voxel.isActive()){
+        //if (voxel.isActive()){
             unsigned int baseIndex = vertices.size() / 3;
             vertices.insert(vertices.end(), voxel.vertices.begin(), voxel.vertices.end());
             colors.insert(colors.end(), voxel.colors.begin(), voxel.colors.end());
@@ -23,7 +23,7 @@ void World::generate(int numVoxels) {
             for (unsigned int index : voxel.indices) {
                 indices.push_back(baseIndex + index);
             }
-        }
+        //}
     }
 	// for (std::vector<float>::iterator i = vertices.begin(); i != vertices.end(); i++)
  	// 	std::cout << *i << std::endl;
@@ -33,7 +33,14 @@ void World::updateVisibility(const glm::mat4& viewProjMatrix, GLuint depthFBO) {
     Frustum frustum = extractFrustum(viewProjMatrix);
     for (std::vector<Voxel>::iterator it = voxels.begin(); it != voxels.end(); it++){
         (*it).setActive(isVoxelInFrustum((*it), frustum));
-        (*it).setActive(isVoxelOccluded((*it), viewProjMatrix, depthFBO));
+        //(*it).setActive(isVoxelOccluded((*it), viewProjMatrix, depthFBO));
+        //std::cout << (*it).isActive() << std::endl;
+    }
+    for (std::vector<Voxel>::iterator it = voxels.begin(); it != voxels.end(); it++){
+        if (isVoxelOccluded((*it), viewProjMatrix, depthFBO)){
+            //std::cout << "true event" << std::endl;
+            (*it).setActive(true);
+        }
         //std::cout << (*it).isActive() << std::endl;
     }
 }

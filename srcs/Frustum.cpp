@@ -96,7 +96,7 @@ bool isVoxelInFrustum(const Voxel& voxel, const Frustum& frustum) {
         // std::cout << "Dot Product + w: " << glm::dot(glm::vec3(plane), positiveVertex) + plane.w << std::endl;
 
         if (glm::dot(glm::vec3(plane), positiveVertex) + plane.w < 0) {//
-            std::cout << "FALSE EVENT\n";
+            //std::cout << "FALSE EVENT\n";
             return false;
         }
     }

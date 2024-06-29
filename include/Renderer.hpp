@@ -48,6 +48,7 @@ class Renderer {
 		
 		glm::vec3 cameraPosition;
 		glm::mat4 viewMatrix;
+		glm::mat4 viewProjMatrix;
 		glm::mat4 view;
 		glm::mat4 projection;
 		double lastTime;
@@ -55,8 +56,8 @@ class Renderer {
 		float rotationAngleX;
 		float rotationAngleY;
 		float sensitivity = 1.0f;
-		float cameraPositionX;
-		float cameraPositionY;
+		float cameraPositionX = 0.0f;
+		float cameraPositionY = 0.0f;
 		float cameraPositionZ = 100.0f;
 		float panSpeed = 1.0f;
 		float zoomFactor = 1.0f;

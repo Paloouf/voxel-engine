@@ -70,6 +70,7 @@ Renderer::Renderer(World* world) : world(world)
         glm::vec3(0.0f, 1.0f, 0.0f)
     );
     viewMatrix = projection * view;
+    viewProjMatrix = projection * viewMatrix;
 }
 
 Renderer::~Renderer() {
@@ -80,7 +81,7 @@ Renderer::~Renderer() {
 
 void Renderer::drawFrustum(const glm::mat4& invViewProj) {
     std::array<glm::vec3, 8> corners = calculateFrustumCorners(invViewProj);
-    
+    std::cout << "frustum drawing\n";
     glBegin(GL_LINES);
     // Near plane
     glVertex3fv(glm::value_ptr(corners[0]));
@@ -126,12 +127,13 @@ void Renderer::drawFrustum(const glm::mat4& invViewProj) {
 void Renderer::moveCamera(float deltaX, float deltaY, float deltaZ) {
     std::cout << "WOMP WOMP\n";
     cameraPosition += glm::vec3(deltaX, deltaY, deltaZ);
+    std::cout << cameraPosition.x << cameraPosition.y << cameraPosition.z << std::endl;
     updateViewMatrix();
 }
 
 void Renderer::updateViewMatrix() {
     //glm::mat4 projection = glm::perspective(glm::radians(45.0f), WIDTH / HEIGHT, 0.1f, 1000.0f);
-    viewMatrix = glm::lookAt(cameraPosition, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)) * projection;
+    viewMatrix = glm::lookAt(cameraPosition, cameraPosition + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 void Renderer::draw() {
@@ -156,17 +158,17 @@ void Renderer::draw() {
     model = glm::rotate(model, glm::radians(rotationAngleY), glm::vec3(0.0f, 1.0f, 0.0f));
     model = glm::scale(model, glm::vec3(zoomFactor, zoomFactor, zoomFactor));
 
-    view = glm::lookAt(
-        glm::vec3(cameraPositionX, cameraPositionY, cameraPositionZ),
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        glm::vec3(0.0f, 1.0f, 0.0f)
-    );
+    // view = glm::lookAt(
+    //     glm::vec3(cameraPositionX, cameraPositionY, cameraPositionZ),
+    //     glm::vec3(0.0f, 0.0f, 0.0f),
+    //     glm::vec3(0.0f, 1.0f, 0.0f)
+    // );
 
     projection = glm::perspective(glm::radians(45.0f), WIDTH / HEIGHT, 0.1f, 1000.0f);
-    viewMatrix = projection * view;
-    //glm::mat4 viewProjMatrix = projection * view;
-    glm::mat4 invViewProj = glm::inverse(viewMatrix);
-    world->updateVisibility(viewMatrix, depthFBO);
+    //viewMatrix = projection * view;
+    viewProjMatrix = projection * viewMatrix;
+    // glm::mat4 invViewProj = glm::inverse(viewProjMatrix);
+    world->updateVisibility(viewProjMatrix, depthFBO);
     updateVBO();
 
     GLint modelLoc = glGetUniformLocation(programID, "model");
@@ -174,7 +176,7 @@ void Renderer::draw() {
     GLint projLoc = glGetUniformLocation(programID, "projection");
 
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
     glBindTexture(GL_TEXTURE_2D, textureID);
@@ -199,7 +201,7 @@ void Renderer::draw() {
     vbo->Unbind();
     tbo->Unbind();
     ibo->Unbind();
-    drawFrustum(invViewProj);
+    //drawFrustum(invViewProj);
 
     glutSwapBuffers();
 }
